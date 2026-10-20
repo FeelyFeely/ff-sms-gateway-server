@@ -48,6 +48,9 @@ type OpenAPI struct {
 }
 
 type Database struct {
+	// Full DSN; overrides the fields below. Lets a managed MySQL that requires
+	// TLS be reached, e.g. "u:p@tcp(h:25060)/db?parseTime=true&tls=skip-verify".
+	DSN      string `yaml:"dsn"      envconfig:"DATABASE__DSN"`      // full DSN (optional)
 	Host     string `yaml:"host"     envconfig:"DATABASE__HOST"`     // database host
 	Port     int    `yaml:"port"     envconfig:"DATABASE__PORT"`     // database port
 	User     string `yaml:"user"     envconfig:"DATABASE__USER"`     // database user

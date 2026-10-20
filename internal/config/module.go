@@ -63,7 +63,7 @@ func Module() fx.Option {
 				MaxOpenConns: cfg.Database.MaxOpenConns,
 				MaxIdleConns: cfg.Database.MaxIdleConns,
 
-				DSN:             "",
+				DSN:             cfg.Database.DSN,
 				ConnMaxIdleTime: 0,
 				ConnMaxLifetime: 0,
 			}

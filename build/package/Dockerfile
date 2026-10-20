@@ -1,7 +1,7 @@
 # Building the binary of the App
 FROM golang:1.26-alpine AS build
 
-ARG APP
+ARG APP=sms-gateway
 ARG APP_VERSION=1.0.0
 ARG APP_RELEASE_ID=1
 WORKDIR /go/src
