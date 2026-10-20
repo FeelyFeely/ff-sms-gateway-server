@@ -1,0 +1,47 @@
+# FeelyFeely SMS relay (smsrelay.feelyfeely.cloud). Phones sign in here; ff-api-external
+# drives it. Private mode + SSE only: nothing goes through sms-gate.app or Google.
+#
+# Create:  doctl apps create --spec .do/app.yaml   (after filling the two SECRETs in a temp copy)
+# DATABASE__DSN: smsrelay@db-mysql-1, own schema only, TLS required by the managed cluster:
+#   smsrelay:<pw>@tcp(<host>:25060)/smsrelay?charset=utf8mb4&parseTime=true&loc=UTC&tls=skip-verify
+# ponytail: tls=skip-verify encrypts but does not verify the cluster CA; register the DO CA if that matters.
+name: ff-sms-relay
+region: fra
+domains:
+  - domain: smsrelay.feelyfeely.cloud
+    type: PRIMARY
+    zone: feelyfeely.cloud
+services:
+  - name: api
+    github:
+      repo: FeelyFeely/ff-sms-gateway-server
+      branch: master
+      deploy_on_push: true
+    dockerfile_path: build/package/Dockerfile
+    http_port: 3000
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    instance_count: 1  # cache/pubsub are in-memory: keep ONE instance, or move both to redis://
+    health_check:
+      http_path: /health/live
+      initial_delay_seconds: 20
+    envs: &common
+      - { key: HTTP__LISTEN, value: "0.0.0.0:3000" }
+      - { key: HTTP__API__HOST, value: smsrelay.feelyfeely.cloud }
+      - { key: HTTP__API__PATH, value: / }
+      - { key: GATEWAY__MODE, value: private }
+      - { key: GATEWAY__PRIVATE_TOKEN, type: SECRET, scope: RUN_TIME }
+      - { key: DATABASE__DSN, type: SECRET, scope: RUN_TIME }
+      - { key: DATABASE__TIMEZONE, value: UTC }
+      - { key: DATABASE__MAX_OPEN_CONNS, value: "4" }
+      - { key: DATABASE__MAX_IDLE_CONNS, value: "2" }
+workers:
+  - name: worker
+    github:
+      repo: FeelyFeely/ff-sms-gateway-server
+      branch: master
+      deploy_on_push: true
+    dockerfile_path: build/package/Dockerfile
+    run_command: /app/app worker
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    instance_count: 1
+    envs: *common
