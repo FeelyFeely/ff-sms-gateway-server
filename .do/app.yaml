@@ -1,4 +1,4 @@
-# FeelyFeely SMS relay (smsrelay.feelyfeely.cloud). Phones sign in here; ff-api-external
+# FeelyFeely SMS relay (smsrelay.feelyfeely.cloud). API under /api: /api/3rdparty/v1, /api/mobile/v1.
 # drives it. Private mode + SSE only: nothing goes through sms-gate.app or Google.
 #
 # Create:  doctl apps create --spec .do/app.yaml   (after filling the two SECRETs in a temp copy)
@@ -27,7 +27,6 @@ services:
     envs: &common
       - { key: HTTP__LISTEN, value: "0.0.0.0:3000" }
       - { key: HTTP__API__HOST, value: smsrelay.feelyfeely.cloud }
-      - { key: HTTP__API__PATH, value: / }
       - { key: GATEWAY__MODE, value: private }
       - { key: GATEWAY__PRIVATE_TOKEN, type: SECRET, scope: RUN_TIME }
       - { key: DATABASE__DSN, type: SECRET, scope: RUN_TIME }
