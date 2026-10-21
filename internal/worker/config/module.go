@@ -29,7 +29,7 @@ func Module() fx.Option {
 		fx.Provide(func(cfg Config) db.Config {
 			return db.Config{
 				Dialect:         db.DialectMySQL,
-				DSN:             "",
+				DSN:             cfg.Database.DSN,
 				Host:            cfg.Database.Host,
 				Port:            cfg.Database.Port,
 				User:            cfg.Database.User,
